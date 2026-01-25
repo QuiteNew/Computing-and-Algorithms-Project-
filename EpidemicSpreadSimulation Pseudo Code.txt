@@ -1,0 +1,213 @@
+Function Main
+    Declare Integer totalPopulation, maxDays, susceptibleCount, infectedCount, recoveredCount, i, result
+    Declare Real infectionRate, recoveryRate
+
+    Output " Welcome to the Epidemic Spread Simulator" &ToChar(13)& "This simulation models the spread of a pandemic within a population. Users can input parameters like population size, infection rate, and recovery rate, and observe daily statistics, including the number of susceptible, infected, and recovered individuals."&ToChar(13)&" The program also categorizes individuals by age and tracks the progression of the epidemic in real-time."
+    Output "Enter total population: "
+    Input totalPopulation
+    While totalPopulation <= 0
+        Output "Please enter valid value for total population, it must be a positive integer!"
+        Input totalPopulation
+    End
+    Output "Enter initial number of infected individuals: "
+    Input infectedCount
+    While infectedCount <= 0 || infectedCount = totalPopulation
+        Output "Enter valid value for initial number of infected population, it must be a positive integer and smaller than the total population!"
+        Input infectedCount
+    End
+    Output "Enter infection rate (between 0 and 1): "
+    Input infectionRate
+    While infectionRate <= 0 || infectionRate > 1
+        Output "Enter valid value for infection rate, it must be decimal and between 0 and 1!"
+        Input infectionRate
+    End
+    Output "Enter recovery rate (between 0 and 1): "
+    Input recoveryRate
+    While recoveryRate <= 0 || recoveryRate > 1
+        Output "Enter valid value for recovery rate, it must be decimal and between 0 and 1!"
+        Input recoveryRate
+    End
+    Output "Enter the maximum number of days to simulate: "
+    Input maxDays
+    While maxDays <= 0
+        Output "Please enter valid value for time period (days) of the simulation, it must be a positive integer!"
+        Input maxDays
+    End
+    Declare String Array population[totalPopulation]
+
+    Assign susceptibleCount = totalPopulation - infectedCount
+    Assign recoveredCount = 0
+    Assign result = 0
+    For i = 0 to totalPopulation - 1
+        Assign population[i] = "Susceptible"
+    End
+    For i = 0 to infectedCount - 1
+        Assign population[i] = "Infected"
+    End
+    Declare String Array populationStates[totalPopulation]
+
+    For i = 0 to totalPopulation - 1
+        If population[i] = "Susceptible"
+            Assign populationStates[i] = "Susceptible"
+        Else
+            If population[i] = "Infected"
+                Assign populationStates[i] = "Infected"
+            Else
+                If population[i] = "Recovered"
+                    Assign populationStates[i] = "Recovered"
+                End
+            End
+        End
+    End
+    Declare Integer Array ages[totalPopulation]
+
+    For i = 0 to totalPopulation - 1
+        Assign populationStates[i] = "Susceptible"
+        Assign ages[i] = random(100) + 1
+    End
+    Call simulateEpidemic(1, susceptibleCount, infectedCount, recoveredCount, population, maxDays,totalPopulation, infectionRate, recoveryRate,populationStates, result,ages)
+    Output "Age Group Statistics: "
+    Call searchAgeGroups(totalPopulation, ages)
+    Call generateSummaryReport(totalPopulation, populationStates, ages, maxDays)
+End
+
+Function generateSummaryReport (Integer totalPopulation, String Array populationStates, Integer Array ages, Integer day)
+    Declare Real infectedIndividuals
+    Declare Integer susceptibleCount, infectedCount, recoveredCount, ageGroup1Count, ageGroup2Count, ageGroup3Count, i
+
+    Assign susceptibleCount = 0
+    Assign infectedCount = 0
+    Assign recoveredCount = 0
+    Assign ageGroup1Count = 0
+    Assign ageGroup2Count = 0
+    Assign ageGroup3Count = 0
+    For i = 0 to totalPopulation - 1
+        If populationStates[i] == "Susceptible"
+            Assign susceptibleCount = susceptibleCount + 1
+        Else
+            If populationStates[i] == "Infected"
+                Assign infectedCount = infectedCount + 1
+            Else
+                If populationStates[i] == "Recovered"
+                    Assign recoveredCount = recoveredCount + 1
+                End
+            End
+        End
+        If ages[i] >= 0 And ages[i] <= 18
+            Assign ageGroup1Count = ageGroup1Count + 1
+        Else
+            If ages[i] >= 19 And ages[i] <= 69
+                Assign ageGroup2Count = ageGroup2Count + 1
+            Else
+                If ages[i] >= 70 And ages[i] <= 100
+                    Assign ageGroup3Count = ageGroup3Count + 1
+                End
+            End
+        End
+    End
+    Output "============================ Final Summary Report ============================="
+    Output "Total Population: " & totalPopulation
+    Output "Final Counts:   Susceptible: " & susceptibleCount & ";" & "   Infected: " & infectedCount & ";" & "   Recovered: " & recoveredCount & ";"
+    Assign infectedIndividuals = (infectedCount/totalPopulation)*100
+    Output "The number of infected individuals at the end of the simulation is: " & infectedIndividuals & "%"
+    Output "Age Group Breakdown: "
+    Output "   0-18 years: " & ageGroup1Count
+    Output "   19-69 years: " & ageGroup2Count
+    Output "   70-100 years: " & ageGroup3Count
+    Output "======================================================"
+End
+
+Function searchAgeGroups (Integer totalPopulation, Integer Array ages)
+    Declare Integer i, ageGroup1, ageGroup2, ageGroup3
+
+    Assign ageGroup1 = 0
+    Assign ageGroup2 = 0
+    Assign ageGroup3 = 0
+    For i = 0 to totalPopulation - 1 
+        If ages[i] >= 0 And ages[i] <= 18
+            Assign ageGroup1 = ageGroup1 + 1
+        Else
+            If ages[i] >= 19 And ages[i] <= 69
+                Assign ageGroup2 = ageGroup2 + 1
+            Else
+                If ages[i] >= 70 And ages[i] <= 100
+                    Assign ageGroup3 = ageGroup3 + 1
+                End
+            End
+        End
+    End
+    Output "Number of individuals in age range 0-18: " & ageGroup1
+    Output "Number of individuals in age range 19-69: " & ageGroup2
+    Output "Number of individuals in age range 70-100: " & ageGroup3
+End
+
+Function searchPopulation (String Array populationStates, String searchState, Integer totalPopulation)
+    Declare Integer count, i
+
+    Assign count = 0
+    For i = 0 to totalPopulation - 1
+        If populationStates[i] = searchState
+            Assign count = count + 1
+        End
+    End
+    Return Integer count
+End
+
+Function simulateEpidemic (Integer day, Integer susceptibleCount, Integer infectedCount, Integer recoveredCount, String Array population, Integer maxDays, Integer totalPopulation, Real infectionRate, Real recoveryRate, String Array populationStates, Integer result, Integer Array ages)
+    Declare Integer i
+    Declare Real randomNum
+
+    If day > maxDays
+        Output "Simulation Ended"
+    Else
+        For i = 0 to totalPopulation - 1
+            Assign randomNum = random(100) / 100
+            If populationStates[i] == "Susceptible" && randomNum < infectionRate
+                Assign populationStates[i] = "Infected"
+                Assign susceptibleCount = susceptibleCount - 1
+                Assign infectedCount = infectedCount + 1
+            End
+        End
+        For i = 0 to totalPopulation - 1
+            Assign randomNum = random(100) / 100
+            If populationStates[i] == "Infected" && randomNum < recoveryRate
+                Assign populationStates[i] = "Recovered"
+                Assign infectedCount = infectedCount - 1
+                Assign recoveredCount = recoveredCount + 1
+            End
+        End
+        If susceptibleCount < 0
+            Assign susceptibleCount = 0
+        End
+        Call sortPopulation(populationStates, totalPopulation)
+        Output "Day " & day & " - Population Status: "
+        For i = 0 to totalPopulation - 1
+            Output "Individual " & i + 1 & " is " & populationStates[i] & " Age: " & ages[i]
+        End
+        Assign result = searchPopulation(populationStates, "Susceptible", totalPopulation)
+        Output "Day " & day & " total susceptible individuals: " & result
+        Assign result = searchPopulation(populationStates, "Infected", totalPopulation)
+        Output "Day " & day & " total infected individuals: " & result
+        Assign result = searchPopulation(populationStates, "Recovered", totalPopulation)
+        Output "Day " & day & " total recovered individuals: " & result
+        Output "=============================================================================="
+        If day < maxDays
+            Call simulateEpidemic(day + 1, susceptibleCount, infectedCount, recoveredCount, population, maxDays,totalPopulation, infectionRate, recoveryRate,populationStates, result, ages)
+        End
+    End
+End
+
+Function sortPopulation (String Array populationStates, Integer totalPopulation)
+    Declare Integer i, j
+    Declare String temp
+
+    For i = 0 to totalPopulation - 2
+        For j = i + 1 to totalPopulation - 1
+            If populationStates[i] > populationStates[j]
+                Assign temp = populationStates[i]
+                Assign populationStates[i] = populationStates[j]
+                Assign populationStates[j] = temp
+            End
+        End
+    End
+End
