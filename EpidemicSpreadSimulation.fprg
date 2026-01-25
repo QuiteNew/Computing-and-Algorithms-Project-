@@ -1,0 +1,314 @@
+<?xml version="1.0"?>
+<flowgorithm fileversion="4.2">
+    <attributes>
+        <attribute name="name" value="EpidemicSpreadSimulation"/>
+        <attribute name="authors" value="user"/>
+        <attribute name="about" value=""/>
+        <attribute name="saved" value="2024-12-22 03:25:15 &#1087;&#1086;&#1087;&#1083;."/>
+        <attribute name="created" value="dXNlcjtERVNLVE9QLVQ0TkNFM0M7MjAyNC0xMi0yMTswNjoyMjozNiBQTTsyNzc1"/>
+        <attribute name="edited" value="S29uc3RhbnRpbjtERVNLVE9QLVVTVTNONkY7MjAyNC0xMi0yMjswMjoxMjo0OCBwbTsyOzM2MDM="/>
+        <attribute name="edited" value="dXNlcjtERVNLVE9QLVQ0TkNFM0M7MjAyNC0xMi0yMjswMzowMDozMSBQTTsxNzsyOTI3"/>
+        <attribute name="edited" value="TWFya287REVTS1RPUC1SQTdCVURUOzIwMjQtMTItMjI7MDM6MjU6MTUg0L/QvtC/0LsuOzE7NzIwOQ=="/>
+    </attributes>
+    <function name="Main" type="None" variable="">
+        <parameters/>
+        <body>
+            <declare name="totalPopulation, maxDays, susceptibleCount, infectedCount, recoveredCount, i, result" type="Integer" array="False" size=""/>
+            <declare name="infectionRate, recoveryRate" type="Real" array="False" size=""/>
+            <output expression="&quot; Welcome to the Epidemic Spread Simulator&quot; &amp;ToChar(13)&amp; &quot;This simulation models the spread of a pandemic within a population. Users can input parameters like population size, infection rate, and recovery rate, and observe daily statistics, including the number of susceptible, infected, and recovered individuals.&quot;&amp;ToChar(13)&amp;&quot; The program also categorizes individuals by age and tracks the progression of the epidemic in real-time.&quot;" newline="True"/>
+            <output expression="&quot;Enter total population: &quot;" newline="True"/>
+            <input variable="totalPopulation"/>
+            <while expression="totalPopulation &lt;= 0">
+                <output expression="&quot;Please enter valid value for total population, it must be a positive integer!&quot;" newline="True"/>
+                <input variable="totalPopulation"/>
+            </while>
+            <output expression="&quot;Enter initial number of infected individuals: &quot;" newline="True"/>
+            <input variable="infectedCount"/>
+            <while expression="infectedCount &lt;= 0 || infectedCount = totalPopulation">
+                <output expression="&quot;Enter valid value for initial number of infected population, it must be a positive integer and smaller than the total population!&quot;" newline="True"/>
+                <input variable="infectedCount"/>
+            </while>
+            <output expression="&quot;Enter infection rate (between 0 and 1): &quot;" newline="True"/>
+            <input variable="infectionRate"/>
+            <while expression="infectionRate &lt;= 0 || infectionRate &gt; 1">
+                <output expression="&quot;Enter valid value for infection rate, it must be decimal and between 0 and 1!&quot;" newline="True"/>
+                <input variable="infectionRate"/>
+            </while>
+            <output expression="&quot;Enter recovery rate (between 0 and 1): &quot;" newline="True"/>
+            <input variable="recoveryRate"/>
+            <while expression="recoveryRate &lt;= 0 || recoveryRate &gt; 1">
+                <output expression="&quot;Enter valid value for recovery rate, it must be decimal and between 0 and 1!&quot;" newline="True"/>
+                <input variable="recoveryRate"/>
+            </while>
+            <output expression="&quot;Enter the maximum number of days to simulate: &quot;" newline="True"/>
+            <input variable="maxDays"/>
+            <while expression="maxDays &lt;= 0">
+                <output expression="&quot;Please enter valid value for time period (days) of the simulation, it must be a positive integer!&quot;" newline="True"/>
+                <input variable="maxDays"/>
+            </while>
+            <declare name="population" type="String" array="True" size="totalPopulation"/>
+            <assign variable="susceptibleCount" expression="totalPopulation - infectedCount"/>
+            <assign variable="recoveredCount" expression="0"/>
+            <assign variable="result" expression="0"/>
+            <for variable="i" start="0" end="totalPopulation - 1" direction="inc" step="1">
+                <assign variable="population[i]" expression="&quot;Susceptible&quot;"/>
+            </for>
+            <for variable="i" start="0" end="infectedCount - 1" direction="inc" step="1">
+                <assign variable="population[i]" expression="&quot;Infected&quot;"/>
+            </for>
+            <declare name="populationStates" type="String" array="True" size="totalPopulation"/>
+            <for variable="i" start="0" end="totalPopulation - 1" direction="inc" step="1">
+                <if expression="population[i] = &quot;Susceptible&quot;">
+                    <then>
+                        <assign variable="populationStates[i]" expression="&quot;Susceptible&quot;"/>
+                    </then>
+                    <else>
+                        <if expression="population[i] = &quot;Infected&quot;">
+                            <then>
+                                <assign variable="populationStates[i]" expression="&quot;Infected&quot;"/>
+                            </then>
+                            <else>
+                                <if expression="population[i] = &quot;Recovered&quot;">
+                                    <then>
+                                        <assign variable="populationStates[i]" expression="&quot;Recovered&quot;"/>
+                                    </then>
+                                    <else/>
+                                </if>
+                            </else>
+                        </if>
+                    </else>
+                </if>
+            </for>
+            <declare name="ages" type="Integer" array="True" size="totalPopulation"/>
+            <for variable="i" start="0" end="totalPopulation - 1" direction="inc" step="1">
+                <assign variable="populationStates[i]" expression="&quot;Susceptible&quot;"/>
+                <assign variable="ages[i]" expression="random(100) + 1"/>
+            </for>
+            <call expression="simulateEpidemic(1, susceptibleCount, infectedCount, recoveredCount, population, maxDays,totalPopulation, infectionRate, recoveryRate,populationStates, result,ages)"/>
+            <output expression="&quot;Age Group Statistics: &quot;" newline="True"/>
+            <call expression="searchAgeGroups(totalPopulation, ages)"/>
+            <call expression="generateSummaryReport(totalPopulation, populationStates, ages, maxDays)"/>
+        </body>
+    </function>
+    <function name="generateSummaryReport" type="None" variable="">
+        <parameters>
+            <parameter name="totalPopulation" type="Integer" array="False"/>
+            <parameter name="populationStates" type="String" array="True"/>
+            <parameter name="ages" type="Integer" array="True"/>
+            <parameter name="day" type="Integer" array="False"/>
+        </parameters>
+        <body>
+            <declare name="infectedIndividuals" type="Real" array="False" size=""/>
+            <declare name="susceptibleCount, infectedCount, recoveredCount, ageGroup1Count, ageGroup2Count, ageGroup3Count, i" type="Integer" array="False" size=""/>
+            <assign variable="susceptibleCount" expression="0"/>
+            <assign variable="infectedCount" expression="0"/>
+            <assign variable="recoveredCount" expression="0"/>
+            <assign variable="ageGroup1Count" expression="0"/>
+            <assign variable="ageGroup2Count" expression="0"/>
+            <assign variable="ageGroup3Count" expression="0"/>
+            <for variable="i" start="0" end="totalPopulation - 1" direction="inc" step="1">
+                <if expression="populationStates[i] == &quot;Susceptible&quot;">
+                    <then>
+                        <assign variable="susceptibleCount" expression="susceptibleCount + 1"/>
+                    </then>
+                    <else>
+                        <if expression="populationStates[i] == &quot;Infected&quot;">
+                            <then>
+                                <assign variable="infectedCount" expression="infectedCount + 1"/>
+                            </then>
+                            <else>
+                                <if expression="populationStates[i] == &quot;Recovered&quot;">
+                                    <then>
+                                        <assign variable="recoveredCount" expression="recoveredCount + 1"/>
+                                    </then>
+                                    <else/>
+                                </if>
+                            </else>
+                        </if>
+                    </else>
+                </if>
+                <if expression="ages[i] &gt;= 0 And ages[i] &lt;= 18">
+                    <then>
+                        <assign variable="ageGroup1Count" expression="ageGroup1Count + 1"/>
+                    </then>
+                    <else>
+                        <if expression="ages[i] &gt;= 19 And ages[i] &lt;= 69">
+                            <then>
+                                <assign variable="ageGroup2Count" expression="ageGroup2Count + 1"/>
+                            </then>
+                            <else>
+                                <if expression="ages[i] &gt;= 70 And ages[i] &lt;= 100">
+                                    <then>
+                                        <assign variable="ageGroup3Count" expression="ageGroup3Count + 1"/>
+                                    </then>
+                                    <else/>
+                                </if>
+                            </else>
+                        </if>
+                    </else>
+                </if>
+            </for>
+            <output expression="&quot;============================ Final Summary Report =============================&quot;" newline="True"/>
+            <output expression="&quot;Total Population: &quot; &amp; totalPopulation" newline="True"/>
+            <output expression="&quot;Final Counts:   Susceptible: &quot; &amp; susceptibleCount &amp; &quot;;&quot; &amp; &quot;   Infected: &quot; &amp; infectedCount &amp; &quot;;&quot; &amp; &quot;   Recovered: &quot; &amp; recoveredCount &amp; &quot;;&quot;" newline="True"/>
+            <assign variable="infectedIndividuals" expression="(infectedCount/totalPopulation)*100"/>
+            <output expression="&quot;The number of infected individuals at the end of the simulation is: &quot; &amp; infectedIndividuals &amp; &quot;%&quot;" newline="True"/>
+            <output expression="&quot;Age Group Breakdown: &quot;" newline="True"/>
+            <output expression="&quot;   0-18 years: &quot; &amp; ageGroup1Count" newline="True"/>
+            <output expression="&quot;   19-69 years: &quot; &amp; ageGroup2Count" newline="True"/>
+            <output expression="&quot;   70-100 years: &quot; &amp; ageGroup3Count" newline="True"/>
+            <output expression="&quot;======================================================&quot;" newline="True"/>
+        </body>
+    </function>
+    <function name="searchAgeGroups" type="None" variable="ages">
+        <parameters>
+            <parameter name="totalPopulation" type="Integer" array="False"/>
+            <parameter name="ages" type="Integer" array="True"/>
+        </parameters>
+        <body>
+            <declare name="i, ageGroup1, ageGroup2, ageGroup3" type="Integer" array="False" size=""/>
+            <assign variable="ageGroup1" expression="0"/>
+            <assign variable="ageGroup2" expression="0"/>
+            <assign variable="ageGroup3" expression="0"/>
+            <for variable="i" start="0" end="totalPopulation - 1&#10;" direction="inc" step="1">
+                <if expression="ages[i] &gt;= 0 And ages[i] &lt;= 18">
+                    <then>
+                        <assign variable="ageGroup1" expression="ageGroup1 + 1"/>
+                    </then>
+                    <else>
+                        <if expression="ages[i] &gt;= 19 And ages[i] &lt;= 69">
+                            <then>
+                                <assign variable="ageGroup2" expression="ageGroup2 + 1"/>
+                            </then>
+                            <else>
+                                <if expression="ages[i] &gt;= 70 And ages[i] &lt;= 100">
+                                    <then>
+                                        <assign variable="ageGroup3" expression="ageGroup3 + 1"/>
+                                    </then>
+                                    <else/>
+                                </if>
+                            </else>
+                        </if>
+                    </else>
+                </if>
+            </for>
+            <output expression="&quot;Number of individuals in age range 0-18: &quot; &amp; ageGroup1" newline="True"/>
+            <output expression="&quot;Number of individuals in age range 19-69: &quot; &amp; ageGroup2" newline="True"/>
+            <output expression="&quot;Number of individuals in age range 70-100: &quot; &amp; ageGroup3" newline="True"/>
+        </body>
+    </function>
+    <function name="searchPopulation" type="Integer" variable="count">
+        <parameters>
+            <parameter name="populationStates" type="String" array="True"/>
+            <parameter name="searchState" type="String" array="False"/>
+            <parameter name="totalPopulation" type="Integer" array="False"/>
+        </parameters>
+        <body>
+            <declare name="count, i" type="Integer" array="False" size=""/>
+            <assign variable="count" expression="0"/>
+            <for variable="i" start="0" end="totalPopulation - 1" direction="inc" step="1">
+                <if expression="populationStates[i] = searchState">
+                    <then>
+                        <assign variable="count" expression="count + 1"/>
+                    </then>
+                    <else/>
+                </if>
+            </for>
+        </body>
+    </function>
+    <function name="simulateEpidemic" type="None" variable="">
+        <parameters>
+            <parameter name="day" type="Integer" array="False"/>
+            <parameter name="susceptibleCount" type="Integer" array="False"/>
+            <parameter name="infectedCount" type="Integer" array="False"/>
+            <parameter name="recoveredCount" type="Integer" array="False"/>
+            <parameter name="population" type="String" array="True"/>
+            <parameter name="maxDays" type="Integer" array="False"/>
+            <parameter name="totalPopulation" type="Integer" array="False"/>
+            <parameter name="infectionRate" type="Real" array="False"/>
+            <parameter name="recoveryRate" type="Real" array="False"/>
+            <parameter name="populationStates" type="String" array="True"/>
+            <parameter name="result" type="Integer" array="False"/>
+            <parameter name="ages" type="Integer" array="True"/>
+        </parameters>
+        <body>
+            <declare name="i" type="Integer" array="False" size=""/>
+            <declare name="randomNum" type="Real" array="False" size=""/>
+            <if expression="day &gt; maxDays">
+                <then>
+                    <output expression="&quot;Simulation Ended&quot;" newline="True"/>
+                </then>
+                <else>
+                    <for variable="i" start="0" end="totalPopulation - 1" direction="inc" step="1">
+                        <assign variable="randomNum" expression="random(100) / 100"/>
+                        <if expression="populationStates[i] == &quot;Susceptible&quot; &amp;&amp; randomNum &lt; infectionRate">
+                            <then>
+                                <assign variable="populationStates[i]" expression="&quot;Infected&quot;"/>
+                                <assign variable="susceptibleCount" expression="susceptibleCount - 1"/>
+                                <assign variable="infectedCount" expression="infectedCount + 1"/>
+                            </then>
+                            <else/>
+                        </if>
+                    </for>
+                    <for variable="i" start="0" end="totalPopulation - 1" direction="inc" step="1">
+                        <assign variable="randomNum" expression="random(100) / 100"/>
+                        <if expression="populationStates[i] == &quot;Infected&quot; &amp;&amp; randomNum &lt; recoveryRate">
+                            <then>
+                                <assign variable="populationStates[i]" expression="&quot;Recovered&quot;"/>
+                                <assign variable="infectedCount" expression="infectedCount - 1"/>
+                                <assign variable="recoveredCount" expression="recoveredCount + 1"/>
+                            </then>
+                            <else/>
+                        </if>
+                    </for>
+                    <if expression="susceptibleCount &lt; 0">
+                        <then>
+                            <assign variable="susceptibleCount" expression="0"/>
+                        </then>
+                        <else/>
+                    </if>
+                    <call expression="sortPopulation(populationStates, totalPopulation)"/>
+                    <output expression="&quot;Day &quot; &amp; day &amp; &quot; - Population Status: &quot;" newline="True"/>
+                    <for variable="i" start="0" end="totalPopulation - 1" direction="inc" step="1">
+                        <output expression="&quot;Individual &quot; &amp; i + 1 &amp; &quot; is &quot; &amp; populationStates[i] &amp; &quot; Age: &quot; &amp; ages[i]" newline="True"/>
+                    </for>
+                    <assign variable="result" expression="searchPopulation(populationStates, &quot;Susceptible&quot;, totalPopulation)"/>
+                    <output expression="&quot;Day &quot; &amp; day &amp; &quot; total susceptible individuals: &quot; &amp; result" newline="True"/>
+                    <assign variable="result" expression="searchPopulation(populationStates, &quot;Infected&quot;, totalPopulation)"/>
+                    <output expression="&quot;Day &quot; &amp; day &amp; &quot; total infected individuals: &quot; &amp; result" newline="True"/>
+                    <assign variable="result" expression="searchPopulation(populationStates, &quot;Recovered&quot;, totalPopulation)"/>
+                    <output expression="&quot;Day &quot; &amp; day &amp; &quot; total recovered individuals: &quot; &amp; result" newline="True"/>
+                    <output expression="&quot;==============================================================================&quot;" newline="True"/>
+                    <if expression="day &lt; maxDays">
+                        <then>
+                            <call expression="simulateEpidemic(day + 1, susceptibleCount, infectedCount, recoveredCount, population, maxDays,totalPopulation, infectionRate, recoveryRate,populationStates, result, ages)"/>
+                        </then>
+                        <else/>
+                    </if>
+                </else>
+            </if>
+        </body>
+    </function>
+    <function name="sortPopulation" type="None" variable="">
+        <parameters>
+            <parameter name="populationStates" type="String" array="True"/>
+            <parameter name="totalPopulation" type="Integer" array="False"/>
+        </parameters>
+        <body>
+            <declare name="i, j" type="Integer" array="False" size=""/>
+            <declare name="temp" type="String" array="False" size=""/>
+            <for variable="i" start="0" end="totalPopulation - 2" direction="inc" step="1">
+                <for variable="j" start="i + 1" end="totalPopulation - 1" direction="inc" step="1">
+                    <if expression="populationStates[i] &gt; populationStates[j]">
+                        <then>
+                            <assign variable="temp" expression="populationStates[i]"/>
+                            <assign variable="populationStates[i]" expression="populationStates[j]"/>
+                            <assign variable="populationStates[j]" expression="temp"/>
+                        </then>
+                        <else/>
+                    </if>
+                </for>
+            </for>
+        </body>
+    </function>
+</flowgorithm>
