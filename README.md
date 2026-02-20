@@ -11,3 +11,5 @@ The entire project assignment should be ONE whole project, meaning all of the wo
 Project file in Flowgorithm;
 Project documentation in .docx (each section described, purpose, how it is useful, how it is used in the program in Flowgorithm, etc.). Documentation should include: Project requirements (what was required/used to complete the project, Project Analysis (small tutorial on usage (what, why, how, etc.)).
 Project presentation in .pptx (max 10 slide)
+
+This project is used as a base for other projects. 
